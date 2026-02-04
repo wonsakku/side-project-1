@@ -1,0 +1,15 @@
+rootProject.name = 'side-project'
+
+// Common modules
+include 'common'
+include 'common:common-kafka'
+include 'common:common-core'
+
+// Service modules
+include 'service-member'
+include 'service-payment'
+include 'service-content'
+
+// Infrastructure modules
+include 'infrastructure-gateway'
+include 'infrastructure-eureka'

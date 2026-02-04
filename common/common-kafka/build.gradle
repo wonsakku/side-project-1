@@ -1,0 +1,10 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+
+// Library module - no executable jar
+bootJar.enabled = false
+jar.enabled = true
