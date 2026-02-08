@@ -1,90 +1,70 @@
 package com.study.member.domain;
 
-import com.study.member.fixture.TestFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static com.study.member.fixture.TestFixture.*;
+import static com.study.member.fixture.TestFixture.createPasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.study.member.fixture.TestFixture.FakePasswordEncoder;
 
 class PasswordTest {
 
     @Test
-    @DisplayName("정상적인 비밀번호로 Password 객체를 생성한다")
+    @DisplayName("암호화된 비밀번호로 Password 객체를 생성한다")
     void createPassword_success() {
         // given
-        String rawPassword = "password123";
-        String expectedResult = "any_encoded_value"; // 테스트에서 원하는 아무 값이나 설정
-        FakePasswordEncoder encoder = createPasswordEncoder();
-        encoder.setForcedMatchResult(true);
-        encoder.setForcedEncodedValue(expectedResult);
+        String encryptedPassword = "encoded_password123";
 
         // when
-        Password password = Password.of(rawPassword, encoder);
+        Password password = Password.from(encryptedPassword);
 
         // then
-        assertThat(password.getValue()).isEqualTo(expectedResult);
+        assertThat(password.getValue()).isEqualTo(encryptedPassword);
     }
 
     @ParameterizedTest
-    @NullAndEmptySource // null 과 "" 값 둘 다 넣어줌
+    @NullAndEmptySource
     @ValueSource(strings = {"  "})
     @DisplayName("비밀번호가 null이거나 빈 문자열이면 예외가 발생한다")
-    void createPassword_nullOrBlank_throwsException(String rawPassword) { // rawPassword에 null, "", " " 케이스 모두 테스트
-        // given
-        FakePasswordEncoder encoder = createPasswordEncoder();
-
+    void createPassword_nullOrBlank_throwsException(String encryptedPassword) {
         // when & then
-        assertThatThrownBy(() -> Password.of(rawPassword, encoder))
+        assertThatThrownBy(() -> Password.from(encryptedPassword))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("비밀번호는 필수입니다");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"1", "12", "123", "12345678901234567", "123456789012345678"})
-    @DisplayName("비밀번호가 4자리 미만이거나 16자리 초과일 경우 예외가 발생한다")
-    void createPassword_invalidLength_throwsException(String rawPassword) {
-        // given
-        FakePasswordEncoder encoder = createPasswordEncoder();
-        encoder.setForcedMatchResult(true);
-
-        // when & then
-        assertThatThrownBy(() -> Password.of(rawPassword, encoder))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("4자리 이상 16자리 이하");
+                .hasMessageContaining("비밀번호 값은 필수입니다");
     }
 
     @Test
-    @DisplayName("비밀번호가 일치하면 예외가 발생하지 않는다")
+    @DisplayName("비밀번호가 일치하면 true를 반환한다")
     void matches_success() {
         // given
-        String rawPassword = "password123";
         FakePasswordEncoder encoder = createPasswordEncoder();
         encoder.setForcedMatchResult(true);
-        Password password = Password.of(rawPassword, encoder);
+        Password password = Password.from("encoded_password123");
 
-        // when & then
-        assertThatCode(() -> password.matches(rawPassword, encoder))
-                .doesNotThrowAnyException();
+        // when
+        boolean result = password.matches("rawPassword", encoder);
+
+        // then
+        assertThat(result).isTrue();
     }
 
     @Test
-    @DisplayName("비밀번호가 일치하지 않으면 예외가 발생한다")
-    void matches_notMatched_throwsException() {
+    @DisplayName("비밀번호가 일치하지 않으면 false를 반환한다")
+    void matches_notMatched() {
         // given
-        String rawPassword = "password123";
         FakePasswordEncoder encoder = createPasswordEncoder();
         encoder.setForcedMatchResult(false);
-        Password password = Password.of(rawPassword, encoder);
+        Password password = Password.from("encoded_password123");
 
-        // when & then
-        assertThatThrownBy(() -> password.matches("wrongPassword", encoder))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("비밀번호가 일치하지 않습니다");
+        // when
+        boolean result = password.matches("wrongPassword", encoder);
+
+        // then
+        assertThat(result).isFalse();
     }
 }

@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import static com.study.member.fixture.TestFixture.createPasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -31,7 +30,7 @@ class MemberTest {
         void createMember_success() {
             // given
             Email email = Email.of("test@gmail.com");
-            Password password = Password.of("password123", createPasswordEncoder());
+            Password password = Password.from("encoded_password123");
             String name = "홍길동";
             UserRole userRole = UserRole.USER;
             LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 0, 0, 0);
@@ -52,6 +51,7 @@ class MemberTest {
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.study.member.domain.MemberTest#provideInvalidMemberArguments")
+        @MethodSource("com.study.member.domain.MemberTest#provideInvalidMemberArguments")
         @DisplayName("필수 값이 누락되면 예외가 발생한다")
         void createMember_invalidArgs_throwsException(String description, Email email, Password password,
                                                       String name, UserRole role, LocalDateTime createdAt,
@@ -63,7 +63,7 @@ class MemberTest {
     }
 
     private static Stream<Arguments> provideInvalidMemberArguments() {
-        Password validPassword = Password.of("password123", createPasswordEncoder());
+        Password validPassword = Password.from("encoded_password123");
         return Stream.of(
                 Arguments.of("이메일 null", null, validPassword, VALID_NAME, VALID_ROLE, VALID_CREATED_AT, VALID_UPDATED_AT, "이메일은 필수"),
                 Arguments.of("비밀번호 null", VALID_EMAIL, null, VALID_NAME, VALID_ROLE, VALID_CREATED_AT, VALID_UPDATED_AT, "비밀번호는 필수"),
@@ -100,7 +100,7 @@ class MemberTest {
         void changePassword_success() {
             // given
             Member member = createMember();
-            Password changedPassword = Password.of("newPassword1", createPasswordEncoder());
+            Password changedPassword = Password.from("encoded_newPassword1");
             LocalDateTime updatedDateTime = LocalDateTime.of(2024, 2, 1, 0, 0, 0);
 
             // when
@@ -114,7 +114,7 @@ class MemberTest {
 
     private Member createMember() {
         Email email = Email.of("test@gmail.com");
-        Password password = Password.of("password123", createPasswordEncoder());
+        Password password = Password.from("encoded_password123");
         String name = "홍길동";
         UserRole userRole = UserRole.USER;
         LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 0, 0, 0);

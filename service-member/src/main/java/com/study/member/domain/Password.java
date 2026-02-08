@@ -7,36 +7,28 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class Password {
 
-    private static final int MIN_LENGTH = 4;
-    private static final int MAX_LENGTH = 16;
-
     private final String value;
 
+    // 내부에서만 생성 가능
     private Password(String value) {
         this.value = value;
     }
 
-    public static Password of(String rawPassword, PasswordEncoderAdapter passwordEncoderAdapter) {
-        validateLength(rawPassword);
-        String encodedPassword = passwordEncoderAdapter.encode(rawPassword);
-        return new Password(encodedPassword);
+    /**
+     * 이미 암호화된 문자열로부터 Password 객체를 생성합니다. (주로 DB 로드용)
+     */
+    public static Password from(String encryptedPassword) {
+        if (encryptedPassword == null || encryptedPassword.isBlank()) {
+            throw new IllegalArgumentException("비밀번호 값은 필수입니다.");
+        }
+        return new Password(encryptedPassword);
     }
 
-    private static void validateLength(String rawPassword) {
-        if (rawPassword == null || rawPassword.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 필수입니다.");
-        }
-
-        if (rawPassword.length() < MIN_LENGTH || rawPassword.length() > MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                    String.format("비밀번호는 %d자리 이상 %d자리 이하여야 합니다.", MIN_LENGTH, MAX_LENGTH));
-        }
-    }
-
-    public void matches(String rawPassword, PasswordEncoderAdapter passwordEncoderAdapter) {
-        if (!passwordEncoderAdapter.matches(rawPassword, this.value)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+    /**
+     * 입력받은 생(Raw) 비밀번호가 현재 암호화된 값과 일치하는지 확인합니다.
+     */
+    public boolean matches(String rawPassword, PasswordEncoderAdapter encoder) {
+        return encoder.matches(rawPassword, this.value);
     }
 
     @Override
