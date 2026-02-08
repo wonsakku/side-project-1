@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(npx create-next-app@14:*)",
+      "Bash(xcopy \"temp-frontend\\\\*\" \"frontend\"\" /E /Y /I && rmdir /S /Q \"temp-frontend \")",
+      "mcp__Windows-MCP__Shell",
+      "Bash(nvm:*)",
+      "WebFetch(domain:laftel.net)"
+    ]
+  }
+}
