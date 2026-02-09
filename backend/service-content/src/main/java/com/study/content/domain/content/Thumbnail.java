@@ -1,9 +1,10 @@
-package com.study.content.domain.vod;
+package com.study.content.domain.content;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -14,17 +15,23 @@ public class Thumbnail {
     private ContentId contentId;
     private String imgUrl;
     private ThumbnailType type;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
-    private Thumbnail(ThumbnailId id, ContentId contentId, String imgUrl, ThumbnailType type) {
+    private Thumbnail(ThumbnailId id, ContentId contentId, String imgUrl, ThumbnailType type,
+                      LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.contentId = contentId;
         this.imgUrl = imgUrl;
         this.type = type;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public static Thumbnail create(ContentId contentId, String imgUrl, ThumbnailType type) {
         validateForCreate(contentId, imgUrl, type);
-        return new Thumbnail(null, contentId, imgUrl, type);
+        LocalDateTime now = LocalDateTime.now();
+        return new Thumbnail(null, contentId, imgUrl, type, now, now);
     }
 
     private static void validateForCreate(ContentId contentId, String imgUrl, ThumbnailType type) {
@@ -39,8 +46,9 @@ public class Thumbnail {
         }
     }
 
-    public static Thumbnail of(Long id, Long contentId, String imgUrl, ThumbnailType type) {
-        return new Thumbnail(ThumbnailId.of(id), ContentId.of(contentId), imgUrl, type);
+    public static Thumbnail of(Long id, Long contentId, String imgUrl, ThumbnailType type,
+                               LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new Thumbnail(ThumbnailId.of(id), ContentId.of(contentId), imgUrl, type, createdAt, modifiedAt);
     }
 
     public void changeImgUrl(String imgUrl) {

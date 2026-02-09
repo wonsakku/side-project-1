@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -14,17 +15,23 @@ public class UserWatchHistory {
     private VodId vodId;
     private Long userId;
     private int endPlaySecond;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
-    private UserWatchHistory(UserWatchHistoryId id, VodId vodId, Long userId, int endPlaySecond) {
+    private UserWatchHistory(UserWatchHistoryId id, VodId vodId, Long userId, int endPlaySecond,
+                             LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.vodId = vodId;
         this.userId = userId;
         this.endPlaySecond = endPlaySecond;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public static UserWatchHistory create(VodId vodId, Long userId, int endPlaySecond) {
         validateForCreate(vodId, userId,  endPlaySecond);
-        return new UserWatchHistory(null, vodId, userId,  endPlaySecond);
+        LocalDateTime now = LocalDateTime.now();
+        return new UserWatchHistory(null, vodId, userId,  endPlaySecond, now, now);
     }
 
     private static void validateForCreate(VodId vodId, Long userId, int endPlaySecond) {
@@ -39,8 +46,9 @@ public class UserWatchHistory {
         }
     }
 
-    public static UserWatchHistory of(Long id, Long vodId, Long userId, int endPlaySecond) {
-        return new UserWatchHistory(UserWatchHistoryId.of(id), VodId.of(vodId), userId, endPlaySecond);
+    public static UserWatchHistory of(Long id, Long vodId, Long userId, int endPlaySecond,
+                                     LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new UserWatchHistory(UserWatchHistoryId.of(id), VodId.of(vodId), userId, endPlaySecond, createdAt, modifiedAt);
     }
 
     public void updatePlayPosition(int endPlaySecond) {

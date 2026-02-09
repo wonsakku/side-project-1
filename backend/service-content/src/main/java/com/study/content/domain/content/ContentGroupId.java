@@ -1,4 +1,4 @@
-package com.study.content.domain.vod;
+package com.study.content.domain.content;
 
 import com.study.common.core.domain.Identifier;
 import lombok.EqualsAndHashCode;
@@ -6,19 +6,19 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode
-public class TagId implements Identifier<Long> {
+public class ContentGroupId implements Identifier<Long> {
 
     private final Long value;
 
-    private TagId(Long value) {
+    private ContentGroupId(Long value) {
         this.value = value;
     }
 
-    public static TagId of(Long value) {
+    public static ContentGroupId of(Long value) {
         if (value == null) {
             return null;
         }
-        return new TagId(value);
+        return new ContentGroupId(value);
     }
 
     @Override

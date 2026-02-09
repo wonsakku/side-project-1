@@ -1,4 +1,4 @@
-package com.study.content.domain.vod;
+package com.study.content.domain.content;
 
 import com.study.common.core.domain.Identifier;
 import lombok.EqualsAndHashCode;

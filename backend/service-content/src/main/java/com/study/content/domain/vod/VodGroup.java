@@ -1,5 +1,6 @@
 package com.study.content.domain.vod;
 
+import com.study.content.domain.content.ContentId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

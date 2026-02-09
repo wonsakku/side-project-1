@@ -1,9 +1,11 @@
 package com.study.content.domain.vod;
 
+import com.study.content.domain.content.ContentId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -16,19 +18,25 @@ public class Vod {
     private String description;
     private String vodUrl;
     private int runningTime;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
-    private Vod(VodId id, ContentId contentId, String title, String description, String vodUrl, int runningTime) {
+    private Vod(VodId id, ContentId contentId, String title, String description, String vodUrl, int runningTime,
+                LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.contentId = contentId;
         this.title = title;
         this.description = description;
         this.vodUrl = vodUrl;
         this.runningTime = runningTime;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public static Vod create(ContentId contentId, String title, String description, String vodUrl, int runningTime) {
         validateForCreate(contentId, title, vodUrl, runningTime);
-        return new Vod(null, contentId, title, description, vodUrl, runningTime);
+        LocalDateTime now = LocalDateTime.now();
+        return new Vod(null, contentId, title, description, vodUrl, runningTime, now, now);
     }
 
     private static void validateForCreate(ContentId contentId, String title, String vodUrl, int runningTime) {
@@ -46,8 +54,9 @@ public class Vod {
         }
     }
 
-    public static Vod of(Long id, Long contentId, String title, String description, String vodUrl, int runningTime) {
-        return new Vod(VodId.of(id), ContentId.of(contentId), title, description, vodUrl, runningTime);
+    public static Vod of(Long id, Long contentId, String title, String description, String vodUrl, int runningTime,
+                         LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new Vod(VodId.of(id), ContentId.of(contentId), title, description, vodUrl, runningTime, createdAt, modifiedAt);
     }
 
     public void changeTitle(String title) {

@@ -6,10 +6,30 @@ spring:
     name: infrastructure-gateway
   cloud:
     gateway:
+      # 1. CORS 글로벌 설정 추가
+      globalcors:
+        add-to-simple-url-handler-mapping: true # Preflight(OPTIONS) 요청 처리를 위해 필수
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000" # 프론트엔드 개발 서버 주소 (실제 환경에 맞춰 수정 가능)
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true # 쿠키나 인증 헤더를 포함할 경우 필수
+            maxAge: 3600 # 브라우저가 CORS 프리플라이트 응답을 캐싱하는 시간 (초)
+
+      # 2. 유레카 서비스 디스커버리 설정
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
+
+      # 3. 마이크로서비스 라우팅 설정
       routes:
         - id: service-member
           uri: lb://service-member
