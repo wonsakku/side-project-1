@@ -11,6 +11,7 @@ interface ContentCreateModalProps {
 
 export default function ContentCreateModal({ isOpen, onClose }: ContentCreateModalProps) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [age, setAge] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
@@ -31,6 +32,7 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
 
   const handleClose = () => {
     setTitle("");
+    setDescription("");
     setSelectedTagIds([]);
     setAge("");
     setIsCompleted(false);
@@ -47,7 +49,8 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
-          tags: selectedTagIds,
+          description: description.trim(),
+          tagIds: selectedTagIds,
           age: age ? Number(age) : null,
           completed: isCompleted,
         }),
@@ -107,6 +110,18 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
             />
           </div>
 
+          {/* 설명 */}
+          <div>
+            <label className="block text-sm font-medium mb-1.5">설명</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="컨텐츠 설명을 입력하세요"
+              rows={3}
+              className="w-full text-sm bg-[var(--background)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-[var(--foreground)] outline-none focus:border-[var(--primary)] transition-colors placeholder:text-[var(--text-secondary)] resize-none"
+            />
+          </div>
+
           {/* 태그 선택 */}
           <div>
             <label className="block text-sm font-medium mb-1.5">
@@ -120,15 +135,15 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <button
-                  key={tag.id}
-                  onClick={() => toggleTag(tag.id)}
+                  key={tag.tagId}
+                  onClick={() => toggleTag(tag.tagId)}
                   className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                    selectedTagIds.includes(tag.id)
+                    selectedTagIds.includes(tag.tagId)
                       ? "bg-[var(--primary)] border-[var(--primary)] text-white"
                       : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]"
                   }`}
                 >
-                  {tag.label}
+                  {tag.tagName}
                 </button>
               ))}
             </div>

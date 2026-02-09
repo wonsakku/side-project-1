@@ -1,26 +1,26 @@
 import { API_BASE_URL } from "./api";
 
 export interface Tag {
-  id: number;
-  label: string;
+  tagId: number;
+  tagName: string;
 }
 
 const FALLBACK_TAGS: Tag[] = [
-  { id: 1, label: "액션" },
-  { id: 2, label: "로맨스" },
-  { id: 3, label: "판타지" },
-  { id: 4, label: "코미디" },
-  { id: 5, label: "드라마" },
-  { id: 6, label: "스릴러" },
-  { id: 7, label: "SF" },
-  { id: 8, label: "일상" },
-  { id: 9, label: "스포츠" },
-  { id: 10, label: "음악" },
-  { id: 11, label: "호러" },
-  { id: 12, label: "미스터리" },
-  { id: 13, label: "모험" },
-  { id: 14, label: "학원" },
-  { id: 15, label: "이세계" },
+  { tagId: 1, tagName: "액션" },
+  { tagId: 2, tagName: "로맨스" },
+  { tagId: 3, tagName: "판타지" },
+  { tagId: 4, tagName: "코미디" },
+  { tagId: 5, tagName: "드라마" },
+  { tagId: 6, tagName: "스릴러" },
+  { tagId: 7, tagName: "SF" },
+  { tagId: 8, tagName: "일상" },
+  { tagId: 9, tagName: "스포츠" },
+  { tagId: 10, tagName: "음악" },
+  { tagId: 11, tagName: "호러" },
+  { tagId: 12, tagName: "미스터리" },
+  { tagId: 13, tagName: "모험" },
+  { tagId: 14, tagName: "학원" },
+  { tagId: 15, tagName: "이세계" },
 ];
 
 const CACHE_KEY = "cached_tags";
