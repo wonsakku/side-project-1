@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { fetchTags, Tag } from "@/lib/tags";
 
@@ -17,6 +17,13 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [mainThumbnail, setMainThumbnail] = useState<File | null>(null);
+  const [subThumbnail, setSubThumbnail] = useState<File | null>(null);
+  const [mainPreview, setMainPreview] = useState<string>("");
+  const [subPreview, setSubPreview] = useState<string>("");
+
+  const mainInputRef = useRef<HTMLInputElement>(null);
+  const subInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchTags().then(setTags);
@@ -30,12 +37,38 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
     );
   };
 
+  const handleThumbnailChange = (file: File | null, type: "MAIN" | "SUB") => {
+    if (type === "MAIN") {
+      setMainThumbnail(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => setMainPreview(reader.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setMainPreview("");
+      }
+    } else {
+      setSubThumbnail(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => setSubPreview(reader.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setSubPreview("");
+      }
+    }
+  };
+
   const handleClose = () => {
     setTitle("");
     setDescription("");
     setSelectedTagIds([]);
     setAge("");
     setIsCompleted(false);
+    setMainThumbnail(null);
+    setSubThumbnail(null);
+    setMainPreview("");
+    setSubPreview("");
     onClose();
   };
 
@@ -44,16 +77,37 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
 
     setIsLoading(true);
     try {
+      const formData = new FormData();
+
+      // 기본 필드 추가
+      formData.append("title", title.trim());
+      formData.append("description", description.trim());
+      formData.append("completed", String(isCompleted));
+
+      if (age) {
+        formData.append("age", age);
+      }
+
+      // tagIds 배열 추가
+      selectedTagIds.forEach((id) => {
+        formData.append("tagIds", String(id));
+      });
+
+      // 썸네일 추가
+      let thumbnailIndex = 0;
+      if (mainThumbnail) {
+        formData.append(`thumbNails[${thumbnailIndex}].thumbNail`, mainThumbnail);
+        formData.append(`thumbNails[${thumbnailIndex}].thumbnailType`, "MAIN");
+        thumbnailIndex++;
+      }
+      if (subThumbnail) {
+        formData.append(`thumbNails[${thumbnailIndex}].thumbNail`, subThumbnail);
+        formData.append(`thumbNails[${thumbnailIndex}].thumbnailType`, "SUB");
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/contents`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim(),
-          tagIds: selectedTagIds,
-          age: age ? Number(age) : null,
-          completed: isCompleted,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -120,6 +174,82 @@ export default function ContentCreateModal({ isOpen, onClose }: ContentCreateMod
               rows={3}
               className="w-full text-sm bg-[var(--background)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-[var(--foreground)] outline-none focus:border-[var(--primary)] transition-colors placeholder:text-[var(--text-secondary)] resize-none"
             />
+          </div>
+
+          {/* 썸네일 */}
+          <div>
+            <label className="block text-sm font-medium mb-2">썸네일</label>
+            <div className="grid grid-cols-2 gap-3">
+              {/* MAIN 썸네일 */}
+              <div>
+                <label className="block text-xs text-[var(--text-secondary)] mb-1.5">메인</label>
+                <div
+                  onClick={() => mainInputRef.current?.click()}
+                  className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-lg cursor-pointer hover:border-[var(--text-secondary)] transition-colors overflow-hidden flex items-center justify-center bg-[var(--background)]"
+                >
+                  {mainPreview ? (
+                    <img src={mainPreview} alt="Main thumbnail" className="w-full h-full object-cover" />
+                  ) : (
+                    <svg className="w-8 h-8 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </div>
+                <input
+                  ref={mainInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleThumbnailChange(e.target.files?.[0] || null, "MAIN")}
+                />
+                {mainThumbnail && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleThumbnailChange(null, "MAIN");
+                    }}
+                    className="text-xs text-[var(--text-secondary)] hover:text-white mt-1"
+                  >
+                    제거
+                  </button>
+                )}
+              </div>
+
+              {/* SUB 썸네일 */}
+              <div>
+                <label className="block text-xs text-[var(--text-secondary)] mb-1.5">서브</label>
+                <div
+                  onClick={() => subInputRef.current?.click()}
+                  className="aspect-video border-2 border-dashed border-[var(--border-color)] rounded-lg cursor-pointer hover:border-[var(--text-secondary)] transition-colors overflow-hidden flex items-center justify-center bg-[var(--background)]"
+                >
+                  {subPreview ? (
+                    <img src={subPreview} alt="Sub thumbnail" className="w-full h-full object-cover" />
+                  ) : (
+                    <svg className="w-8 h-8 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </div>
+                <input
+                  ref={subInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleThumbnailChange(e.target.files?.[0] || null, "SUB")}
+                />
+                {subThumbnail && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleThumbnailChange(null, "SUB");
+                    }}
+                    className="text-xs text-[var(--text-secondary)] hover:text-white mt-1"
+                  >
+                    제거
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* 태그 선택 */}
