@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -17,6 +19,7 @@ public class Content {
     private String description;
     private Integer age;
     private boolean completed;
+    private List<Thumbnail> thumbnails = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -93,5 +96,23 @@ public class Content {
             throw new IllegalArgumentException("설명은 필수입니다.");
         }
         this.description = description;
+    }
+
+    // 추가: ID를 주입받는 reconstitution 메서드 (저장 후 ID 업데이트용)
+    public Content withId(ContentId id) {
+        return Content.builder()
+                .id(id)
+                .title(this.title)
+                .description(this.description)
+                .age(this.age)
+                .completed(this.completed)
+                .createdAt(this.createdAt)
+                .modifiedAt(this.modifiedAt)
+                .build();
+    }
+
+    // 추가: 썸네일 주입 메서드
+    public void addThumbnails(List<Thumbnail> thumbnails) {
+        this.thumbnails.addAll(thumbnails);
     }
 }

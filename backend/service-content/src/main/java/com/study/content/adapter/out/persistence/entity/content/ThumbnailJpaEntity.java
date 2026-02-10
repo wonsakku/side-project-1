@@ -26,6 +26,12 @@ public class ThumbnailJpaEntity {
     @Column(name = "img_url", nullable = false)
     private String imgUrl;
 
+    @Column(name = "origin_file_name", nullable = false)
+    private String originFileName; // 추가
+
+    @Column(name = "saved_file_name", nullable = false)
+    private String savedFileName;  // 추가
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private ThumbnailType type;
@@ -36,11 +42,13 @@ public class ThumbnailJpaEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-    private ThumbnailJpaEntity(Long id, Long contentId, String imgUrl, ThumbnailType type,
-                               LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private ThumbnailJpaEntity(Long id, Long contentId, String imgUrl, String originFileName,
+                               String savedFileName, ThumbnailType type, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.contentId = contentId;
         this.imgUrl = imgUrl;
+        this.originFileName = originFileName;
+        this.savedFileName = savedFileName;
         this.type = type;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -51,6 +59,8 @@ public class ThumbnailJpaEntity {
                 domain.getId() != null ? domain.getId().getValue() : null,
                 domain.getContentId() != null ? domain.getContentId().getValue() : null,
                 domain.getImgUrl(),
+                domain.getOriginFileName(),
+                domain.getSavedFileName(),
                 domain.getType(),
                 domain.getCreatedAt(),
                 domain.getModifiedAt()
@@ -58,6 +68,15 @@ public class ThumbnailJpaEntity {
     }
 
     public Thumbnail toDomain() {
-        return Thumbnail.of(id, contentId, imgUrl, type, createdAt, modifiedAt);
+        return Thumbnail.of(
+                id,
+                contentId,
+                imgUrl,
+                originFileName,
+                savedFileName,
+                type,
+                createdAt,
+                modifiedAt
+        );
     }
 }

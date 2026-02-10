@@ -1,15 +1,11 @@
-package com.study.content.application.service.dto;
-
-import lombok.Builder;
+package com.study.content.adapter.in.web.dto.content;
 
 import java.util.List;
 
-@Builder
-public record CreateContentCommand(String title,
+public record CreateContentRequest(String title,
                                    String description,
                                    List<Long> tagIds,
                                    Integer age,
                                    boolean completed,
-                                   List<RequestThumbNail> thumbNails) {
-
+                                   List<UploadFileInfo> thumbNails) {
 }
